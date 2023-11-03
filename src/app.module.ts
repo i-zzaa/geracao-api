@@ -2,36 +2,35 @@ import { Module, MiddlewareConsumer } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-import { CatalogController } from './catalog/catalog.controller';
-import { CatalogService } from './catalog/catalog.service';
-import { ServiceController } from './service/service.controller';
-
-import { TicketController } from './ticket/ticket.controller';
-import { ServiceService } from './service/service.service';
-import { TicketService } from './ticket/ticket.service';
-import { AuthModule } from './auth/auth.module';
-
 import * as cors from 'cors';
-import { CategoryService } from './category/category.service';
-import { CategoryController } from './category/category.controller';
-
 import * as session from 'express-session';
+
+import { AuthModule } from './auth/auth.module';
+import { InstrumentController } from './instrument/instrument.controller';
+import { LocationController } from './location/location.controller';
+import { MusicController } from './music/music.controller';
+import { UserController } from './user/user.controller';
+import { InstrumentService } from './instrument/instrument.service';
+import { LocationService } from './location/location.service';
+import { MusicService } from './music/music.service';
+import { UserService } from './user/user.service';
+import { PrismaService } from './prisma.service';
 
 @Module({
   imports: [AuthModule],
   controllers: [
-    TicketController,
-    ServiceController,
-    CatalogController,
-    CategoryController,
-
+    InstrumentController,
+    LocationController,
+    MusicController,
+    UserController,
     AppController,
   ],
   providers: [
-    TicketService,
-    ServiceService,
-    CatalogService,
-    CategoryService,
+    InstrumentService,
+    LocationService,
+    MusicService,
+    UserService,
+    PrismaService,
 
     AppService,
   ],

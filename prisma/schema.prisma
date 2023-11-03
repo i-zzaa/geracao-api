@@ -1,0 +1,65 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
+
+datasource db {
+  // provider = "mysql"
+  // url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./data/dev.db"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  login     String   @unique
+  password  String
+  active    Boolean  @default(true)
+  profileId Int?
+  createdAt DateTime @default(now())
+
+  profile Profile? @relation(fields: [profileId], references: [id])
+}
+
+model Profile {
+  id   Int    @id @default(autoincrement())
+  name String
+  user User[]
+}
+
+model Location {
+  id        Int      @id @default(autoincrement())
+  name      String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model Instrument {
+  id        Int      @id @default(autoincrement())
+  name      String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model Music {
+  id     Int    @id @default(autoincrement())
+  name   String
+  artist String
+
+  music String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  notes Note[]
+}
+
+model Note {
+  id      Int    @id @default(autoincrement())
+  name    String
+  musicId Int?
+  Music   Music? @relation(fields: [musicId], references: [id])
+}

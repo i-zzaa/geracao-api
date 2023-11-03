@@ -1,61 +1,49 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Auth } from 'src/api/api';
+import * as bcrypt from 'bcryptjs';
+
+import { UserProps } from 'src/user/user.interface';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    private userService: UserService,
+    private jwtService: JwtService,
+  ) {}
 
-  async login({ user, SessionID, ChallengeToken }: any) {
+  async login(user: UserProps) {
     const payload = {
-      sub: user.ID,
-      username: user.UserLogin,
-      id: user.ID,
-      session: {
-        ChallengeToken,
-        SessionID,
-      },
+      sub: user.id,
+      username: user.login,
     };
 
     return {
-      token: this.jwtService.sign(payload),
+      accessToken: this.jwtService.sign(payload),
       user: {
-        username: user.FirstName,
-        id: user.ID,
-        login: user.UserLogin,
+        login: user.login,
+        id: user.id,
+        profile: user.profile,
+        name: user.name,
       },
     };
   }
 
-  async validateUser(username: string, password: string): Promise<any> {
+  async validateUser(login: string, password: string): Promise<any> {
     try {
-      const { data }: any = await Auth().post('auth/login', {
-        User: username,
-        Password: password,
-      });
+      const user = await this.userService.findUserAuth(login);
 
-      if (
-        Boolean(data.Me) &&
-        Boolean(data.SessionValue) &&
-        Boolean(data.ChallengeToken)
-      ) {
-        return {
-          user: data.Me,
-          SessionID: data.SessionValue,
-          ChallengeToken: data.ChallengeToken,
-        };
+      if (!user) return null;
+
+      const checkPassword = bcrypt.compareSync(
+        password.toString(),
+        user.password,
+      );
+
+      if (user && checkPassword && user.active) {
+        const { password, ...result } = user;
+        return result;
       }
-    } catch (error) {
-      return null;
-    }
-  }
-
-  async logout(SessionID: string, ChallengeToken: string) {
-    try {
-      await Auth().post('auth/logout', {
-        SessionID,
-        ChallengeToken,
-      });
     } catch (error) {
       return null;
     }

@@ -8,7 +8,7 @@ export class InstrumentService implements InstrumentServiceInterface {
 
   async getAll() {
     try {
-      const data = await this.prismaService.instrument.findMany({
+      return await this.prismaService.instrument.findMany({
         select: {
           id: true,
           name: true,
@@ -17,8 +17,6 @@ export class InstrumentService implements InstrumentServiceInterface {
           active: true,
         },
       });
-
-      return data;
     } catch (error) {
       new Error(error.message);
     }

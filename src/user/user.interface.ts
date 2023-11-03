@@ -5,6 +5,13 @@ export interface UserProps {
   password: string;
   profileId?: number;
   profile?: PerfilProps;
+
+  instrumentId?: number;
+  userId?: number;
+  teacherId?: number;
+  week?: string;
+  start?: string;
+  end?: string;
 }
 
 export interface PerfilProps {
@@ -31,4 +38,10 @@ export interface UserRequestProps {
   funcoesId?: any[];
   fazDevolutiva?: boolean;
   cargaHoraria?: any[];
+}
+
+export enum PROFILE_ID {
+  aluno = 1,
+  adm = 2,
+  professor = 3,
 }

@@ -8,7 +8,7 @@ export class LocationService implements LocationServiceInterface {
 
   async getAll() {
     try {
-      const data = await this.prismaService.location.findMany({
+      return await this.prismaService.location.findMany({
         select: {
           id: true,
           name: true,
@@ -17,8 +17,6 @@ export class LocationService implements LocationServiceInterface {
           active: true,
         },
       });
-
-      return data;
     } catch (error) {
       new Error(error.message);
     }

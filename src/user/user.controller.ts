@@ -28,13 +28,36 @@ export class UserController {
     }
   }
 
-  @Get()
-  async getAll(@Request() req: any, @Response() response: any) {
+  @Get('dropdown-profile')
+  async getProfile(@Response() response: any) {
+    try {
+      const data = await this.userService.getProfile();
+      responseSuccess(response, data);
+    } catch (error) {
+      responseError(response, error);
+    }
+  }
+  @Get('dropdown-teacher')
+  async getTeacher(@Response() response: any) {
+    try {
+      const data = await this.userService.getTeacher();
+      responseSuccess(response, data);
+    } catch (error) {
+      responseError(response, error);
+    }
+  }
+
+  @Post('find-all')
+  async getAll(
+    @Request() req: any,
+    @Response() response: any,
+    @Body() body: any,
+  ) {
     try {
       const page = Number(req.query.page) || 1;
       const pageSize = Number(req.query.pageSize) || 10;
 
-      const data = await this.userService.getAll(page, pageSize);
+      const data = await this.userService.getAll(page, pageSize, body);
       responseSuccess(response, data);
     } catch (error) {
       responseError(response);

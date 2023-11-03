@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserProps } from './user.interface';
+import { PROFILE_ID, UserProps } from './user.interface';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from 'src/prisma.service';
 
@@ -25,8 +25,14 @@ export class UserService {
     return user;
   }
 
-  async getAll(page: any, pageSize: any): Promise<any | undefined> {
-    const user: any = await this.prismaService.user.findFirstOrThrow({
+  async getAll(
+    page: any,
+    pageSize: any,
+    filter: any,
+  ): Promise<any | undefined> {
+    const skip = (page - 1) * pageSize;
+
+    const user: any = await this.prismaService.user.findMany({
       select: {
         id: true,
         name: true,
@@ -36,10 +42,19 @@ export class UserService {
       },
       where: {
         active: true,
+        // ...filter,
       },
+
+      skip,
+      take: pageSize,
     });
 
-    return user;
+    const totalRecords = await this.prismaService.user.count();
+
+    return {
+      data: user,
+      totalRecords,
+    };
   }
 
   async create(body: UserProps) {
@@ -60,9 +75,43 @@ export class UserService {
       },
     });
 
+    if (body.profileId === PROFILE_ID.aluno) {
+      await this.prismaService.class.create({
+        data: {
+          userId: user.id,
+          instrumentId: body.instrumentId,
+          teacherId: body.teacherId,
+          week: body.week,
+          start: body.start,
+          end: body.end,
+        },
+      });
+    }
+
     if (!user) return;
 
     return user;
+  }
+
+  async getProfile() {
+    return await this.prismaService.profile.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+  }
+
+  async getTeacher() {
+    return await this.prismaService.user.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+      where: {
+        profileId: PROFILE_ID.professor,
+      },
+    });
   }
 
   async updatePassword(userId: number) {

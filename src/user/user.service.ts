@@ -32,17 +32,34 @@ export class UserService {
   ): Promise<any | undefined> {
     const skip = (page - 1) * pageSize;
 
+    const query = {};
+
+    if (filter.locationId) query['locationId'] = Number(filter.locationId);
+    if (filter.profileId) query['profileId'] = Number(filter.profileId);
+
     const user: any = await this.prismaService.user.findMany({
       select: {
         id: true,
         name: true,
         login: true,
         profile: true,
+        location: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         active: true,
       },
       where: {
         active: true,
-        // ...filter,
+        name: {
+          contains: filter.name,
+        },
+        login: {
+          contains: filter.login,
+        },
+        ...query,
       },
 
       skip,
@@ -66,26 +83,37 @@ export class UserService {
         login: true,
         id: true,
         profile: true,
+        location: true,
       },
       data: {
         name: body.name.toUpperCase(),
         login: body.login.toLowerCase(),
-        profileId: body.profileId,
+        profileId: Number(body.profileId),
+        locationId: Number(body.locationId),
         password: body.password,
       },
     });
 
-    if (body.profileId === PROFILE_ID.aluno) {
-      await this.prismaService.class.create({
-        data: {
-          userId: user.id,
-          instrumentId: body.instrumentId,
-          teacherId: body.teacherId,
-          week: body.week,
-          start: body.start,
-          end: body.end,
-        },
-      });
+    if (Number(body.profileId) === PROFILE_ID.aluno) {
+      try {
+        await Promise.all(
+          body.classes.map(
+            async (item: any) =>
+              await this.prismaService.class.create({
+                data: {
+                  userId: user.id,
+                  instrumentId: Number(item.instrumentId),
+                  teacherId: Number(item.teacherId),
+                  week: item.week,
+                  start: item.start,
+                  end: item.end,
+                },
+              }),
+          ),
+        );
+      } catch (error) {
+        console.log(error);
+      }
     }
 
     if (!user) return;

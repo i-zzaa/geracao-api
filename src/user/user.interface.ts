@@ -2,12 +2,16 @@ export interface UserProps {
   id?: number;
   name: string;
   login: string;
-  password: string;
+  password?: string;
   profileId?: number;
+  locationId?: number;
   profile?: PerfilProps;
 
+  classes?: ClassProps[];
+}
+
+export interface ClassProps {
   instrumentId?: number;
-  userId?: number;
   teacherId?: number;
   week?: string;
   start?: string;
@@ -41,7 +45,7 @@ export interface UserRequestProps {
 }
 
 export enum PROFILE_ID {
-  aluno = 1,
-  adm = 2,
+  adm = 1,
+  aluno = 2,
   professor = 3,
 }

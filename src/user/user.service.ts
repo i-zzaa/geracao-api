@@ -49,6 +49,20 @@ export class UserService {
             name: true,
           },
         },
+        enrolledClasses: {
+          select: {
+            week: true,
+            start: true,
+            end: true,
+            instrument: true,
+            teacher: {
+              select: {
+                name: true,
+                id: true,
+              },
+            },
+          },
+        },
         active: true,
       },
       where: {

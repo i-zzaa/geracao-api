@@ -1,8 +1,8 @@
 <h1 align="center">
 
-👾  PORTAL API👾
+👾 Geração Sonora API 👾
 </h1>
-<p align="center">🚀  Esse projeto tem como objetivo principal permitir que o usuário abre solicitações helpdesk
+<p align="center">🚀  Esse projeto tem como objetivo principal permitir que o usuário mantenha usuario, intrumentos, unidades e músicas
 </p>
 
 ### Pré-requisitos
@@ -15,13 +15,19 @@ Além disto é bom ter um editor para trabalhar com o código como [VSCode](http
 
 ```
 # Clone este repositório
-$ git https://github.com/i-zzaa/portal-api.git
+$ git https://github.com/i-zzaa/geracao-api.git
 
 # Acesse a pasta do projeto no terminal/cmd
-$ cd portal-api
+$ cd geracao-api
 
 # Instale as dependências 
 $ yarn install
+
+# Prisma
+$ npx prisma generate 
+$ cd prisma 
+$ mkdir data 
+$ echo . dev.db 
 
 # Execute a aplicação em modo de desenvolvimento
 $ yarn start:dev
@@ -34,10 +40,10 @@ $ yarn start:dev
 
 ```
 # Clone este repositório
-$ git https://github.com/i-zzaa/portal-api.git
+$ git https://github.com/i-zzaa/geracao-api.git
 
 # Acesse a pasta do projeto no terminal/cmd
-$ cd portal-api
+$ cd geracao-api
 
 # Instale as dependências 
 $ yarn install

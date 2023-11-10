@@ -19,6 +19,10 @@ export class MusicController {
   getAll() {
     return this.musicService.getAll();
   }
+  @Get('notes')
+  getAllNotes() {
+    return this.musicService.getAllNotes();
+  }
 
   @Get('filter')
   get(@Body() body: any) {

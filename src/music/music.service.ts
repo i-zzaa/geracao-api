@@ -137,27 +137,43 @@ export class MusicService implements MusicServiceInterface {
   }
 
   async getNetwork(notes: any) {
-    return {
-      nodes: [
-        { id: 1, name: 'DO' },
-        { id: 2, name: 'RE' },
-        { id: 3, name: 'MI' },
-        { id: 4, name: 'FA' },
-        { id: 5, name: 'SOL' },
-        { id: 6, name: 'LA' },
-        { id: 7, name: 'SI' },
-      ],
-      links: [
-        { sid: 1, tid: 2 },
-        { sid: 2, tid: 4 },
-        { sid: 3, tid: 4 },
-        { sid: 4, tid: 5 },
-        { sid: 5, tid: 6 },
-        { sid: 7, tid: 6 },
-        { sid: 5, tid: 6 },
-        { sid: 3, tid: 7 },
-        { sid: 7, tid: 6 },
-      ],
-    };
+    const data = await this.prismaService.noteMusic.findMany({
+      select: {
+        music: true,
+      },
+      where: {
+        noteId: Number(notes.noteId),
+        music: {
+          name: {
+            contains: notes.name,
+          },
+        },
+      },
+    });
+
+    return data;
+
+    // return {
+    //   nodes: [
+    //     { id: 1, name: 'DO' },
+    //     { id: 2, name: 'RE' },
+    //     { id: 3, name: 'MI' },
+    //     { id: 4, name: 'FA' },
+    //     { id: 5, name: 'SOL' },
+    //     { id: 6, name: 'LA' },
+    //     { id: 7, name: 'SI' },
+    //   ],
+    //   links: [
+    //     { sid: 1, tid: 2 },
+    //     { sid: 2, tid: 4 },
+    //     { sid: 3, tid: 4 },
+    //     { sid: 4, tid: 5 },
+    //     { sid: 5, tid: 6 },
+    //     { sid: 7, tid: 6 },
+    //     { sid: 5, tid: 6 },
+    //     { sid: 3, tid: 7 },
+    //     { sid: 7, tid: 6 },
+    //   ],
+    // };
   }
 }

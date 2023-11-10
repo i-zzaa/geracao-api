@@ -54,7 +54,12 @@ export class UserService {
             week: true,
             start: true,
             end: true,
-            instrument: true,
+            instrument: {
+              select: {
+                name: true,
+                id: true,
+              },
+            },
             teacher: {
               select: {
                 name: true,
@@ -90,8 +95,7 @@ export class UserService {
 
   async create(body: UserProps) {
     body.password = bcrypt.hashSync('12345678', 8);
-
-    const user: any = await this.prismaService.user.create({
+    const user = await this.prismaService.user.create({
       select: {
         name: true,
         login: true,

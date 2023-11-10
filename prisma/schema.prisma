@@ -36,9 +36,9 @@ model Class {
   start String
   end   String
 
-  instrument Instrument? @relation(fields: [instrumentId], references: [id])
-  user       User        @relation("User", fields: [userId], references: [id])
-  teacher    User        @relation("teacher", fields: [teacherId], references: [id])
+  instrument Instrument @relation(fields: [instrumentId], references: [id])
+  user       User       @relation("User", fields: [userId], references: [id])
+  teacher    User       @relation("teacher", fields: [teacherId], references: [id])
 }
 
 model Profile {

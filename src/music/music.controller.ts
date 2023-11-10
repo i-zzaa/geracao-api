@@ -23,6 +23,10 @@ export class MusicController {
   getAllNotes() {
     return this.musicService.getAllNotes();
   }
+  @Post('network')
+  getNetwork(@Body() notes: any) {
+    return this.musicService.getNetwork(notes);
+  }
 
   @Get('filter')
   get(@Body() body: any) {

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { MusicProps, MusicServiceInterface } from './music.interface';
 import { PrismaService } from 'src/prisma.service';
+import { gerarCorAleatoriaHex } from 'src/util/color';
 
 @Injectable()
 export class MusicService implements MusicServiceInterface {
@@ -136,44 +137,119 @@ export class MusicService implements MusicServiceInterface {
     }
   }
 
+  frequencyNotes(musicasComNota) {
+    const notasFrequentes = {};
+    const notasIdsFrequentes = {};
+
+    musicasComNota.forEach((musica) => {
+      const notas = musica.noteMusic; // Assumindo que 'noteMusic' é um array de notas na sua estrutura de dados
+
+      for (let i = 0; i < notas.length - 1; i++) {
+        const notaAtual = `${notas[i].note.name}${notas[i].noteId}`;
+        const proximaNota = `${notas[i + 1].note.name}${notas[i + 1].noteId}`;
+
+        const notaAtualKey = notas[i].noteId;
+        const proximaNotaKey = notas[i + 1].noteId;
+
+        // Contar a frequência das notas seguintes
+        const key = `${notaAtual}-${proximaNota}`;
+        const keyIds = `${notaAtualKey}-${proximaNotaKey}`;
+
+        notasFrequentes[key] = (notasFrequentes[key] || 0) + 1;
+        notasIdsFrequentes[keyIds] = (notasIdsFrequentes[keyIds] || 0) + 1;
+      }
+    });
+
+    return {
+      names: notasFrequentes,
+      ids: notasIdsFrequentes,
+    };
+  }
+
+  transformFrequency(notasFrequentes) {
+    // Suponha que 'notasFrequentes' seja o objeto com a contagem de frequência de repetição de notas
+
+    const nodes = [];
+    const links = [];
+
+    // Criar uma lista de nós (nodes) únicos
+    const notasUnicas = [
+      ...new Set(
+        Object.keys(notasFrequentes.names).flatMap((key) => key.split('-')),
+      ),
+    ];
+
+    // Calcular o total de repetições
+    const totalRepeticoes: any = Object.values(notasFrequentes.ids).reduce(
+      (acc: any, count: any) => acc + count,
+      0,
+    );
+
+    notasUnicas.forEach((nota, index) => {
+      const id = nota.match(/\d+$/)[0];
+      const name = nota.replace(/\d/g, '');
+
+      const frequencia = Object.keys(notasFrequentes.names).filter((n) =>
+        n.includes(nota),
+      ).length;
+
+      const porcentagem = (frequencia / totalRepeticoes) * 100;
+
+      nodes.push({
+        id: id,
+        name: name,
+        _size: porcentagem / 4,
+      });
+    });
+
+    // Criar uma lista de links com base na contagem de frequência em porcentagem
+    for (const key in notasFrequentes.ids) {
+      const [sid, tid] = key.split('-');
+      const frequencia = notasFrequentes.ids[key];
+      const porcentagem = (frequencia / totalRepeticoes) * 100;
+
+      links.push({
+        sid: parseInt(sid),
+        tid: parseInt(tid),
+        frequencia: porcentagem,
+      });
+    }
+
+    return { nodes, links };
+  }
+
   async getNetwork(notes: any) {
-    const data = await this.prismaService.noteMusic.findMany({
+    const data = await this.prismaService.music.findMany({
       select: {
+        name: true,
+        artist: true,
+        link: true,
         music: true,
+        noteMusic: {
+          select: {
+            noteId: true,
+            note: true,
+          },
+        },
       },
       where: {
-        noteId: Number(notes.noteId),
-        music: {
-          name: {
-            contains: notes.name,
+        noteMusic: {
+          some: {
+            noteId: Number(notes.noteId),
           },
+        },
+        name: {
+          contains: notes.name,
         },
       },
     });
 
-    return data;
+    const notasFrequentes = this.frequencyNotes(data);
+    const result = this.transformFrequency(notasFrequentes);
 
-    // return {
-    //   nodes: [
-    //     { id: 1, name: 'DO' },
-    //     { id: 2, name: 'RE' },
-    //     { id: 3, name: 'MI' },
-    //     { id: 4, name: 'FA' },
-    //     { id: 5, name: 'SOL' },
-    //     { id: 6, name: 'LA' },
-    //     { id: 7, name: 'SI' },
-    //   ],
-    //   links: [
-    //     { sid: 1, tid: 2 },
-    //     { sid: 2, tid: 4 },
-    //     { sid: 3, tid: 4 },
-    //     { sid: 4, tid: 5 },
-    //     { sid: 5, tid: 6 },
-    //     { sid: 7, tid: 6 },
-    //     { sid: 5, tid: 6 },
-    //     { sid: 3, tid: 7 },
-    //     { sid: 7, tid: 6 },
-    //   ],
-    // };
+    return {
+      network: { ...result },
+      data,
+    };
   }
 }
